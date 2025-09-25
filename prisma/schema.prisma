@@ -14,12 +14,43 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user {
-  id Int @default(autoincrement()) @id
-  email String @unique
-  password String?
-  createAt DateTime @default(now()) @map("created_at")
+model User {
+  id        Int @default(autoincrement()) @id
+  email     String @unique
+  password  String?
+  order     Order[]
+  createAt  DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("users")
+}
+
+model Order {
+  id        Int @default(autoincrement()) @id
+  User      User? @relation(fields: [userId], references: [id])
+  userId    Int?
+  orderProduct OrderProduct[]
+  createAt  DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("orders")
+}
+
+model Product {
+  id        Int @default(autoincrement()) @id
+  orderProduct OrderProduct[]
+  createAt  DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("products")
+}
+
+model OrderProduct {
+  Order Order @relation(fields: [orderId], references: [id])
+  orderId Int
+  Product Product @relation(fields: [productId], references: [id])
+  productId Int
+
+  @@id([orderId, productId])
+  @@map("order_products")
 }
